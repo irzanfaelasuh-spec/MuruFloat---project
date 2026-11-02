@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MuruFloat</string>
+    <string name="notification_channel_name">MuruFloat overlay</string>
+    <string name="notification_title">MuruFloat is active</string>
+    <string name="notification_text">Tap the edge handle to open your app launcher.</string>
+</resources>
