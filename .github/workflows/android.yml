@@ -39,19 +39,37 @@ jobs:
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Verify project files
+      # Detect project root whether files are at repository root or inside
+      # an accidentally nested folder (for example MuruFloat/).
+      - name: Locate Android project
+        shell: bash
         run: |
-          test -f app/src/main/AndroidManifest.xml
-          test -f app/src/main/java/app/murufloat/mobile/MainActivity.kt
-          test -f app/src/main/java/app/murufloat/mobile/FloatingService.kt
+          set -euo pipefail
+          manifest_path="$(find . -type f -path '*/app/src/main/AndroidManifest.xml' -not -path './.git/*' -print -quit)"
+          if [ -z "$manifest_path" ]; then
+            echo "ERROR: AndroidManifest.xml not found. Upload the extracted project files (not the ZIP itself)."
+            echo "Expected: app/src/main/AndroidManifest.xml"
+            echo "Repository files at root:"
+            ls -la
+            exit 1
+          fi
+          project_dir="${manifest_path%/app/src/main/AndroidManifest.xml}"
+          if [ -z "$project_dir" ]; then project_dir="."; fi
+          echo "PROJECT_DIR=$project_dir" >> "$GITHUB_ENV"
+          echo "Found Android project in: $project_dir"
+          test -f "$project_dir/app/src/main/java/app/murufloat/mobile/MainActivity.kt"
+          test -f "$project_dir/app/src/main/java/app/murufloat/mobile/FloatingService.kt"
+          test -f "$project_dir/settings.gradle.kts"
+          test -f "$project_dir/build.gradle.kts"
 
       - name: Build installable debug APK
+        working-directory: ${{ env.PROJECT_DIR }}
         run: gradle --no-daemon --stacktrace :app:assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: MuruFloat-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
