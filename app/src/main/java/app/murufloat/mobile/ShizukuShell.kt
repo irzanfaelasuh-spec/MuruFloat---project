@@ -112,7 +112,7 @@ object ShizukuShell {
                 )
                     .daemon(false)
                     .tag("murufloat-shell-launcher")
-                    .version(1)
+                    .version(2)
                     .processNameSuffix("murufloat_shell")
 
                 try {
@@ -133,7 +133,7 @@ object ShizukuShell {
         }
 
         val completed = try {
-            latch?.await(8, TimeUnit.SECONDS) == true
+            latch?.await(20, TimeUnit.SECONDS) == true
         } catch (_: InterruptedException) {
             Thread.currentThread().interrupt()
             false
