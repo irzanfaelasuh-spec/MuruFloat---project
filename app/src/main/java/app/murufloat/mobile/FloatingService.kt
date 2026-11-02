@@ -758,7 +758,7 @@ class FloatingService : Service() {
                         "Opening ${app.label} fullscreen."
 
                     AppLauncher.Result.FAILED ->
-                        "Could not open ${app.label}. Check Shizuku and device support."
+    "Freeform gagal: ${AppLauncher.lastError.take(300)}"
                 }
 
                 Toast.makeText(
